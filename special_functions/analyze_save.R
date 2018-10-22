@@ -1,6 +1,44 @@
-# Data preparation
+# ----- ---------------------Data preparation ----------------------------
 
 source("~/Dropbox/mult_IF_aco_exp/v3/wrapper.R")
+
+# ------------------------------ All data -------------------------------
+# Data of peak trials
+ 
+peak_yoked <- bind_all_Ss(326:333,30,1,1) 
+peak_yoked$phase <- "Yoked"
+
+peak_training <- bind_all_Ss(326:333,40,1,0) 
+peak_training$phase <- "Training"
+
+all_data_peak <- bind_rows(peak_training,peak_yoked)
+
+all_data_peak <- all_data_peak %>%
+  select(cum_dt,evento,sujeto,sesion,cde,trial,phase)
+
+# Phase and cde (the component) as factors
+
+all_data_peak$phase <- factor(all_data_peak$phase)
+all_data_peak$cde <- factor(all_data_peak$cde)
+
+# Data of multiple fixed interval 
+
+mIF_yoked <-  bind_all_Ss(326:333,30,0,1) 
+mIF_yoked$phase <- "Yoked"
+
+mIF_training <-  bind_all_Ss(326:333,40,0,0) 
+mIF_training$phase <- "Training"
+
+all_data_mIF <- bind_rows(mIF_training,mIF_yoked)
+
+# Phase and cde (the component) as factors
+
+all_data_mIF$phase <- factor(all_data_mIF$phase)
+all_data_mIF$cde <- factor(all_data_mIF$cde)
+
+save(all_data_mIF,all_data_peak,file = "all_data_IF_&_peak.RData")
+
+# --------------------------- Overall rate ------------------------------
 
 df_rate_aco <- 
   read_sep_by_lever_phase(aco = 1) %>%
@@ -22,7 +60,7 @@ df_rate_both_phases$cde <- factor(df_rate_both_phases$cde)
 
 save(df_rate_both_phases,file = "overall_rate_data.RData")
 
-# -------------- Individual trial analysis -------
+# ------------------- Individual trial analysis ---------------------
 
 df_p_lhl <- pooled_ind_ana_df(326:333,25,30) %>% as.data.frame()
 
@@ -44,18 +82,18 @@ df_p_lhl$phase <- factor(df_p_lhl$phase, levels = c("Training","Yoked"))
 
 # data to get full width half maximum
 
-resp_times_aco <- bind_all_Ss(326:333,25,1,1) %>% resp_times(.,30)
+resp_times_aco <- bind_all_Ss(326:333,18,1,1) %>% resp_times(.,30)
 resp_times_aco$phase <- "yoked"
 
 resp_times_training <- bind_all_Ss(326:333,25,1,0) %>% resp_times(.,30)
 resp_times_training$phase <- "training"
 
-resp_times <- bind_rows(resp_times_aco,resp_times_training)
+resp_times_df <- bind_rows(resp_times_aco,resp_times_training)
 
-fwhm_2phases <- resp_times %>%
-  group_by(sujeto, cde, phase,sesion) %>%
+fwhm_2phases <- resp_times_df %>%
+  group_by(sujeto, cde, phase,sesion)%>%
   filter(length(bins) > 1) %>%
-  group_by(sujeto, cde, phase,sesion) %>%
+  group_by(sujeto,cde,phase,sesion) %>%
   summarise(
     fwhm = 
     {
@@ -63,7 +101,7 @@ fwhm_2phases <- resp_times %>%
       rt <- rt[rt < 180]
       d  <- data.frame(x = density(rt)$x,
                        y = density(rt)$y)
-      fwhm <- fwhm(d$x,d$y) # custom function
+      fwhm <- fwhm(d$x,d$y)$fwhm # custom function
       if(length(fwhm) == 0 ) {
         NA} else { fwhm }
     }, 
@@ -73,7 +111,7 @@ fwhm_2phases <- resp_times %>%
       rt <- rt[rt < 180]
       d  <- data.frame(x = density(rt)$x,
                        y = density(rt)$y)
-      mfw <- mfw(d$x,d$y) # custom function
+      mfw <- fwhm(d$x,d$y)$peak # custom function
       if(length(mfw) == 0 ) {
         NA} else { mfw }
     }) %>% na.omit()
@@ -82,7 +120,7 @@ fwhm_2phases$cde <- fwhm_2phases$cde %>% as.factor
 
 save(df_p_lhl,fwhm_2phases,file = "start_stop_fwhm_data.RData")
 
-#### Correlation analysis ####
+#------------ Correlation analysis ----------------------------
 
 df_IF_tr <- bind_all_Ss(326:333,16,0,0) %>% as.data.frame()
 
@@ -153,7 +191,7 @@ levels(rho_both_ph$phase ) <- c("Yoked","Training")
 
 rho_both_ph$phase  <- factor(rho_both_ph$phase , levels = c("Training","Yoked"))
 
-### Correlation coefficient by session ### 
+#--------------------- Correlation coefficient by session ---------------- 
 
 df_IF_tr_xs <- bind_all_Ss(326:333,40,0,0) %>% as.data.frame()
 
@@ -222,7 +260,7 @@ rho_both_ph_xs$phase  <- factor(rho_both_ph_xs$phase, levels = c("Training","Yok
 
 save(rho_both_ph,rho_both_ph_xs,file = "correlation_data.RData")
 
-# normalized plots
+# ----------------------- Normalized plots ---------------------------------
 
 df_tr <- bind_all_Ss(326:333,25,1,0) %>% 
   group_by(sujeto,sesion,cde,trial) %>%
@@ -244,7 +282,7 @@ df_aco <- bind_all_Ss(326:333,25,1,1) %>%
   mutate(resp_norm = (resp - min(resp))/(max(resp) - min(resp)),
          ec_norm = (ec_resp - min(ec_resp))/(max(ec_resp) - min(ec_resp)))
 
-# qqplot of IRI
+#  --------------------- Qplot of IRI ---------------------------------
 
 df_IF_aco <- bind_all_Ss(326:333,16,0,1) %>% as.data.frame()
 df_IF_aco$phase <- "yoked"
@@ -300,7 +338,7 @@ qq_tr <- df_IRI_tr %>%
 qq_both <- bind_rows(qq_tr,qq_aco)
 
 
-# get kld data and plot
+# --------------------------------- Dkl -----------------------------------
 
 df_peak_aco <- bind_all_Ss(326:333,16,1,1) 
 
@@ -368,10 +406,17 @@ d <- lapply(s_vector,function(k){
 }
 ) %>% bind_rows()
 
-# reordenar por fase
+# Reordenar por fase
 
 d %<>% arrange(phase)
 
 dsum <- d %>% group_by(phase) %>% summarise(kld = median(kld,na.rm = T))
 
 save(df_aco,df_tr,qq_both,d,dsum,file = "rate_qq_dkl.RData")
+
+#----- Clustering by k medoids, pam function that is robust to outliers -------
+
+df_p <- pooled_ind_ana_km_df(326:333,30,30) %>% as.data.frame()
+# total = 960
+
+write.csv(df_p,"~/Dropbox/LAyCC/km_plots/ind_metrics_kmedoids.csv",row.names = F)

@@ -64,11 +64,15 @@ resp_norm_plot <- function(df,col_param,resp_type,
                        labels=c("1" = "Tandem","2"="Yoked"))+
     scale_fill_manual(name ="",values = fill_param,
                       labels=c("1" = "Tandem","2"="Yoked"))+
-    scale_x_continuous(limits = c(0,180/res),labels = every_nth(seq(0,180,20),3,inverse = TRUE),
-                       breaks = seq(0,180/res,20/res), expand = c(0, 0)) +
-    scale_y_continuous(breaks = seq(0,1,0.125),
-                       labels = every_nth(seq(0,1,0.125),2,inverse = TRUE))+
-    labs(x = "Time in trial (s)", y = 'Normalized resp. rate') +
+    scale_x_continuous(limits = c(0,180/res),
+                       labels = every_nth(seq(0,180,20),3,inverse = TRUE),
+                       breaks = seq(0,180/res,20/res), 
+                       expand = c(0, 0)) +
+    scale_y_continuous(breaks = seq(0,1.125,0.125),
+                       expand = c(0,0),
+                       limits = c(0,1.125),
+                       labels = every_nth(seq(0,1.125,0.125),2,inverse = TRUE))+
+    labs(x = "Time in trial (s)", y = TeX("Normalized response rate ($\\pm SEM$)")) +
     geom_vline(xintercept = 60/res, linetype = "dashed")+
     expand_limits(y = c(0,1),x = c(0,182))+
     guides(shape = guide_legend(override.aes = list(size = 0.5)))+

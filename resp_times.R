@@ -36,7 +36,7 @@ resp_times <- function(df,n_trials){
     var
   }
   
-  resptimes <- df %>% select(sujeto,evento,sesion,cde,bins)
+  resptimes <- df %>% select(sujeto,evento,sesion,cde,bins,cum_trial)
   
   resptimes
   

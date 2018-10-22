@@ -5,9 +5,9 @@ bp_km_wrap <- function(list_Ss,sessions,aco,rp_index=c(1,11)){
   last_n_list <- last_n_ses(list_Ss=list_Ss,n=sessions,aco=aco) 
   
   if(aco == 1){
-    dir_plot <- "~/Escritorio/startstop/start_stop_km_aco/"
+    dir_plot <- "~/Dropbox/LAyCC/km_plots/s1_s2_km_aco/"
   } else {
-    dir_plot <- "~/Escritorio/startstop/start_stop_km_training/"
+    dir_plot <- "~/Dropbox/LAyCC/km_plots/s1_s2_km_training/"
   }
   
   df_1 <-  lapply(last_n_list,function(k){
@@ -17,7 +17,7 @@ bp_km_wrap <- function(list_Ss,sessions,aco,rp_index=c(1,11)){
     if(!is_empty(df_2)){
       
       df_2 <- df_2[df_2$evento %in% rp_index,]
-     # print(k)
+      # print(k)
       df_2$bins <- get_bins(df_2$cum_dt,1,180,1) 
       
       cde <- unique(df_2$cde)

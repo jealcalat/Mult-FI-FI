@@ -4,85 +4,51 @@
 # I tried to solve with the more complex one (second)
 
 fwhm <- function(x,y){
-  
+
   xy <- data.frame(x = x,y = y)
-  xy <- xy[xy$x > 0 & xy$x < 180,]
-  
-  xmax <- xy$x[xy$y==max(xy$y)]
+  xmax <- xy$x[xy$y==max(xy$y)][1]
   x1 <- xy$x[xy$x < xmax][which.min(abs(xy$y[xy$x < xmax] - max(xy$y)/2))]
   x2 <- xy$x[xy$x > xmax][which.min(abs(xy$y[xy$x > xmax] - max(xy$y)/2))]
   fwhm <- x2 - x1
-  fwhm
+  list(fwhm = fwhm,peak = xmax)
 }
-
-mfw <- function(x,y){
-  
-  xy <- data.frame(x = x,y = y)
-  xy <- xy[xy$x > 0 & xy$x < 180,]
-  
-  xmax <- xy$x[xy$y==max(xy$y)]
-  x1 <- xy$x[xy$x < xmax][which.min(abs(xy$y[xy$x < xmax] - max(xy$y)/2))]
-  x2 <- xy$x[xy$x > xmax][which.min(abs(xy$y[xy$x > xmax] - max(xy$y)/2))]
-  # Resize vector between x1 and x2
-  xy <- xy[xy$x >= x1 & xy$x <= x2,]
-  xmax2 <- xy$x[xy$y==max(xy$y)]
-  xmax2
-}
-
 # 
-# fwhm <- function(x,y){
+# mfw <- function(x,y){
 #   
 #   xy <- data.frame(x = x,y = y)
+#   xy <- xy[xy$x > 0 & xy$x < 180,]
 #   
-#   xy <- xy[xy$x > 0 & xy$x <= 150,]
-# 
-#   y.peaks <- pracma::findpeaks(xy$y,npeaks = 4)
-#   
-#   y.max1 <- max(y.peaks[,1])
-#     
-#   y.max2 <- min(y.peaks[,1])
-# 
-#   x.max1 <- xy$x[xy$y == y.max1]
-#   x.max2 <- xy$x[xy$y == y.max2]
-#   
-#   while(x.max1 > x.max2){
-#     
-#     xy <- xy[xy$x >= x.max2,]
-#     
-#     y.peaks <- pracma::findpeaks(xy$y,npeaks = 3)
-#    
-#     y.max1 <- max(y.peaks[,1])
-#       
-#     y.max2 <- min(y.peaks[,1])
-#       
-#     x1_peak <- x.max2
-#     x.max1 <- xy$x[xy$y == y.max1]
-#     x.max2 <- xy$x[xy$y == y.max2]
-#    
-#   }
-#   
-#   if(y.max1 != y.max2){
-#     x1 <- xy$x[xy$x < x.max1][which.min(abs(xy$y[xy$x < x.max1] - y.max1/2))]
-#     x2 <- xy$x[xy$x > x.max1 & xy$x < x.max2][which.min(abs(xy$y[xy$x > x.max1 & xy$x < x.max2] - y.max1/2))]
-#   } else {
-#     x1 <- xy$x[xy$x < x.max1][which.min(abs(xy$y[xy$x < x.max1] - y.max1/2))]
-#     x2 <- xy$x[xy$x > x.max1][which.min(abs(xy$y[xy$x > x.max1] - y.max1/2))]
-#   }
-#   
-#   if(y.peaks[1,1] == y.max1 & exists("x1_peak")) rm(x1_peak)
-#   
-#   if(exists("x1_peak")) {
-#     
-#     x1 <- x1_peak
-#     
-#     }
-#   
-#   fwhm <- x2 - x1
-#   
-#   fwhm 
-# 
+#   xmax <- xy$x[xy$y==max(xy$y)]
+#   x1 <- xy$x[xy$x < xmax][which.min(abs(xy$y[xy$x < xmax] - max(xy$y)/2))]
+#   x2 <- xy$x[xy$x > xmax][which.min(abs(xy$y[xy$x > xmax] - max(xy$y)/2))]
+#   # Resize vector between x1 and x2
+#   xy <- xy[xy$x >= x1 & xy$x <= x2,]
+#   xmax2 <- xy$x[xy$y==max(xy$y)]
+#   xmax2
 # }
 # 
+# fwhm <- function(x,y){
+# 
+#   xy <- data.frame(x = x,y = y)
+#   xy <- xy[xy$x > 0 & xy$x < 180,]
+#   y.peaks <- pracma::findpeaks(xy$y,npeaks = 2)
+# 
+#   if(length(y.peaks[,1]) !=1 ){
+#     p1 <- xy[xy$y == y.peaks[1,1],1]
+#     p2 <- xy[xy$y == y.peaks[2,1],1]
+#     # Find minimum, which will be the cutoff point
+#     min <- optimize(approxfun(xy$x,xy$y),interval=c(p1,p2))$minimum
+#     xy <- xy[xy$x <= min,]
+#   }
+# 
+#   xmax <- xy$x[xy$y==max(xy$y)]
+#   x1 <- xy$x[xy$x < xmax][which.min(abs(xy$y[xy$x < xmax] - max(xy$y)/2))]
+#   x2 <- xy$x[xy$x > xmax][which.min(abs(xy$y[xy$x > xmax] - max(xy$y)/2))]
+#   fwhm <- x2 - x1
+# 
+#   list(fwhm = fwhm,peak = xmax)
+# 
+# }
 
 # fwhm <- function(x,y){
 #    
